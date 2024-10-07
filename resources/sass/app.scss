@@ -1,0 +1,51 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+
+#fundo {
+
+    width: auto !important;
+    height: 100vh !important;
+    background-size: cover !important;
+    background: url(/public/img/fundo.png) !important;
+    background-size: 100% !important;
+    opacity: 1.97 !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+
+}
+
+.card {
+    backdrop-filter: blur(25px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+    background-color: rgba(255, 255, 255, 0.51) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(209, 213, 219, 0.3) !important;
+}
+
+.card-modal {
+    backdrop-filter: blur(10px) saturate(100%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(100%) !important;
+    background-color: rgba(255, 255, 255, 0.90) !important;
+    border-radius: 12px !important;
+    border: 5px solid rgba(209, 213, 219, 0.3) !important;
+}
+
+.bgnavbar {
+    background-color: #469aee !important;
+}
+
+.alert-dismissible {
+    position: fixed;
+    top: 8%;
+    right: 20px;
+    z-index: 9999;
+    width: 350px;
+    /* Ajuste o tamanho se necessário */
+}
