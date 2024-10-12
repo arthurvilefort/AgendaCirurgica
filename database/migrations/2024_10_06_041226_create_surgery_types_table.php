@@ -9,7 +9,7 @@ class CreateSurgeryTypesTable extends Migration
     public function up()
     {
         Schema::create('surgery_types', function (Blueprint $table) {
-            $table->id('tipo_cirurgia_id');  // Define o campo "id" como chave primária
+            $table->id();  // Define o campo "id" como chave primária
             $table->string('nome');
             $table->timestamps();
         });

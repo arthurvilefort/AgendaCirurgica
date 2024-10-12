@@ -27,26 +27,26 @@
                 <table class="table table-hover " id="tabela_itens">
                   <thead>
                     <tr>
-                      <th class="col-md-2 bg-transparent text-center  ">Nome do Hospital</th>
+                      <th class="col-md-3 bg-transparent text-center  ">Nome do Hospital</th>
                       <th class="col-md-3 bg-transparent text-center  ">Endereço</th>
                       @if(Auth::user()->level != 1)
                       <th class="col-md-2 bg-transparent  text-center">Quantidade Total de Salas</th>
                       <th class="col-md-2 bg-transparent  text-center">Usuários por Hospital</th>
-                      <th class="col-md-2 bg-transparent  text-center">Adicionar Usuarios</th>
                       <th class="col-md-1  bg-transparent  text-center">Editar</th>
                       <th class="col-md-1  bg-transparent  text-center">Excluir</th>
                       @else<!-- SE FOR MEDICO EXIBE SÓ ESSA -->
                       <th class="col-md-6 bg-transparent  text-center">Quantidade Total de Salas</th>
                       @endif
-                     
+
 
                     </tr>
                   </thead>
                   <tbody>
                     @foreach ($hospitais as $hospital)
-        
+                    @if(Auth::user()->level == 0 || $hospital->users->contains(Auth::user()->id))
+
                     <tr>
-                      <td class="col-md-2 text-center">{{$hospital->nome}}</td>
+                      <td class="col-md-3 text-center">{{$hospital->nome}}</td>
                       <td class="col-md-3 text-center">{{$hospital->endereco}}</td>
                       @if(Auth::user()->level != 1)
                       <td class="col-md-2 text-center">
@@ -55,24 +55,24 @@
                         @endphp
 
                         @if ($qtdSalas > 0)
-                        <button class="btn btn-info">
-                        {{ $qtdSalas }} Salas nesse Hospital
-                        </button>
+                        <a href="{{route('sala.exibir', $hospital->id)}}" class="btn btn-info">
+                          {{ $qtdSalas }} Salas
+                        </a>
                         @else
-                        <button class="btn btn-info">
-                          {{ $qtdSalas }} Salas nesse Hospital
-                        </button>
+                        <a href="{{route('sala.exibir', $hospital->id)}}" class="btn btn-info">
+                          {{ $qtdSalas }} Salas
+                        </a>
                         @endif
                       </td>
                       <td class="col-md-2 text-center">
-                      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalListUsers{{$hospital->id}}">
-                        {{ $qtdSalas }} Usuarios 
+                        @php
+                        $qtdUsuarios = $hospital->users()->count();
+                        @endphp
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalListUsers{{$hospital->id}}">
+                          {{ $qtdUsuarios }} Usuarios
                         </button>
                       </td>
-                      <td class="col-md-1 text-center">
-                        <button type="button" class="btn btn-success btn-sm " data-bs-toggle="modal" data-bs-target="#modalAddUsers{{$hospital->id}}">
-                          <span class="fa fa-plus"></span></button>
-                      </td>
+
                       <td class="col-md-1 text-center">
                         <button type="button" class="btn btn-info btn-sm " data-bs-toggle="modal" data-bs-target="#modalupdate{{$hospital->id}}">
                           <span class="fa fa-pencil"></span></button>
@@ -89,7 +89,7 @@
 
                         @if ($qtdSalas > 0)
                         <button class="btn btn-info">
-                        {{ $qtdSalas }} Salas nesse Hospital
+                          {{ $qtdSalas }} Salas nesse Hospital
                         </button>
                         @else
                         <button class="btn btn-info">
@@ -98,9 +98,10 @@
                         @endif
                       </td>
                       @endif
-                 
-                     
+
+
                     </tr>
+                    @endif
                     @endforeach
                   </tbody>
                 </table>
@@ -165,7 +166,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5 fw-bold" id="modalupdate{{$hospital->id}}">Tem certeza que deseja excluir este Hospital?</h1>
+        <h1 class="modal-title fs-5 fw-bold" id="modalupdate{{$hospital->id}}">Deseja Atualizar os dados deste Hospital?</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -202,62 +203,53 @@
   </div>
 </div>
 <!--Modal update-->
-
-<!-- Modal para listar e excluir usuários -->
+<!-- Modal para gerenciar usuários do hospital -->
 <div class="modal fade" id="modalListUsers{{$hospital->id}}" tabindex="-1" aria-labelledby="modalListUsersLabel{{$hospital->id}}" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Usuários no Hospital: <b>{{$hospital->nome}}</b></h5>
+        <h5 class="modal-title">Gerenciar Usuários do Hospital: <strong>{{ $hospital->nome }}</strong></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <!-- Lista de usuários -->
-        <ul class="list-group">
+        <!-- Lista de usuários já pertencentes ao hospital -->
+        <ul class="list-group mb-3">
           @foreach ($hospital->users as $user)
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <strong>{{ $user->name }}</strong> - {{ $user->email }}
-              <form  method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
-              </form>
-            </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ $user->name }} - {{ $user->email }}
+            <form action="{{ route('hospital.removeUser', ['hospital' => $hospital->id, 'user' => $user->id]) }}" method="POST">
+              @csrf
+              @method('DELETE')
+              <button type="submit" class="btn btn-danger btn-sm">Remover</button>
+            </form>
+          </li>
           @endforeach
+          @if ($hospital->users->isEmpty())
+          <li class="list-group-item text-center">Nenhum usuário associado a este hospital.</li>
+          @endif
         </ul>
+
+        <!-- Formulário para adicionar novos usuários -->
+        <form action="{{ route('hospital.addUser', $hospital->id) }}" method="POST">
+          @csrf
+          <div class="input-group">
+            <select class="form-select" name="user_id" required>
+              <option value="">Selecione um usuário...</option>
+              @foreach ($users->diff($hospital->users) as $user)
+              <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->email }}</option>
+              @endforeach
+            </select>
+            <button class="btn btn-success" type="submit">Adicionar Usuário</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
+<!-- Fim do Modal -->
 
-<!-- Modal para adicionar usuários -->
-<div class="modal fade" id="modalAddUsers{{$hospital->id}}" tabindex="-1" aria-labelledby="modalAddUsersLabel{{$hospital->id}}" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Adicionar Usuários ao Hospital: <b>{{$hospital->nome}}</b></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Campo de pesquisa -->
-        <input type="text" class="form-control mb-3" id="searchAllUsers{{$hospital->id}}" placeholder="Pesquisar usuários...">
 
-        <!-- Lista de todos os usuários que ainda não pertencem ao hospital -->
-        <ul class="list-group">
-          @foreach ($users->diff($hospital->users) as $user) <!-- Exibir usuários não associados ao hospital -->
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <strong>{{ $user->name }}</strong> - {{ $user->email }}
-              <form method="POST">
-                @csrf
-                <button type="submit" class="btn btn-success btn-sm">Adicionar</button>
-              </form>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 @endforeach
 @endif
@@ -310,27 +302,4 @@
 @section('scripts')
 <script src="{{ asset('/js/all.js')}}"></script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var hospitais = @json($hospitais);
-
-    hospitais.forEach(function (hospital) {
-        // Função de pesquisa dentro do modal
-        document.getElementById('search-usuarios-' + hospital.id).addEventListener('input', function () {
-            var searchValue = this.value.toLowerCase();
-            var listItems = document.querySelectorAll('#usuarios-list-' + hospital.id + ' li');
-
-            listItems.forEach(function (item) {
-                var userName = item.textContent.toLowerCase();
-                if (userName.includes(searchValue)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    });
-});
-
-</script>
 @endsection

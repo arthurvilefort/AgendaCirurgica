@@ -10,26 +10,21 @@ class AddForeignKeysToTables extends Migration
     {
         // Foreign keys para a tabela Surgeries
         Schema::table('surgeries', function (Blueprint $table) {
-            $table->foreign('tipo_cirurgia_id')->references('tipo_cirurgia_id')->on('surgery_types');
-            $table->foreign('sala_id')->references('id')->on('rooms');
-            $table->foreign('hospital_id')->references('id')->on('hospitals');
-            $table->foreign('paciente_id')->references('id')->on('users');
+            $table->foreign('tipo_cirurgia_id')->references('id')->on('surgery_types')->onDelete('cascade');
+            $table->foreign('sala_id')->references('id')->on('rooms')->onDelete('cascade');
+            $table->foreign('hospital_id')->references('id')->on('hospitals')->onDelete('cascade');
+            $table->foreign('paciente_id')->references('id')->on('pacients')->onDelete('cascade');  // FK para a tabela pacients
         });
 
         // Foreign key para a tabela Rooms
         Schema::table('rooms', function (Blueprint $table) {
-            $table->foreign('hospital_id')->references('id')->on('hospitals');
-        });
-
-        // Foreign key para a tabela Reports
-        Schema::table('reports', function (Blueprint $table) {
-            $table->foreign('hospital_id')->references('id')->on('hospitals');
+            $table->foreign('hospital_id')->references('id')->on('hospitals')->onDelete('cascade');
         });
 
         // Foreign keys para a tabela intermediária Hospital_User
         Schema::table('hospital_user', function (Blueprint $table) {
-            $table->foreign('hospital_id')->references('id')->on('hospitals');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('hospital_id')->references('id')->on('hospitals')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -43,10 +38,6 @@ class AddForeignKeysToTables extends Migration
         });
 
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropForeign(['hospital_id']);
-        });
-
-        Schema::table('reports', function (Blueprint $table) {
             $table->dropForeign(['hospital_id']);
         });
 

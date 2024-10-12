@@ -20,7 +20,8 @@ class HospitalController extends Controller
         $salas = Room::orderBy('id')->get();
         $users = User::orderBy('name')->get();
 
-        return view('hospitais', compact('hospitais','salas','users'));
+
+        return view('hospitais', compact('hospitais', 'salas', 'users'));
     }
 
     /**
@@ -49,31 +50,31 @@ class HospitalController extends Controller
      */
     public function update(Hospital $hospital)
     {
-      
+
         $messages = [
             'nome.required' => 'O campo nome é obrigatório.',
             'endereco.required' => 'O campo endereço é obrigatório.',
         ];
-    
+
         $this->validate(request(), [
             'nome' => 'required',
             'endereco' => 'required',
         ], $messages);
-        
-    
+
+
         // Atualiza os dados do usuário
         $hospital->nome = request('nome');
         $hospital->endereco = request('endereco');
 
-     
-    
+
+
         try {
             $hospital->save();
         } catch (QueryException $e) {
             session()->flash('mensagem-erro', 'Erro ao salvar o registro.');
             return redirect()->back();
         }
-    
+
         session()->flash('mensagem-sucesso', 'Dados alterados com sucesso!');
         return redirect()->back();
     }
@@ -88,6 +89,34 @@ class HospitalController extends Controller
             session()->flash('mensagem-sucesso', 'Hospital excluído com sucesso.');
         } catch (QueryException $e) {
             session()->flash('mensagem-erro', 'Erro ao excluir o hospital.');
+            return redirect()->back();
+        }
+
+        return redirect()->back();
+    }
+    public function addUser(Request $request, Hospital $hospital)
+    {
+        try {
+            // Adiciona o usuário ao hospital e preenche os timestamps
+            $hospital->users()->attach($request->user_id, [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            session()->flash('mensagem-sucesso', 'Usuário adicionado ao hospital com sucesso.');
+        } catch (QueryException $e) {
+            session()->flash('mensagem-erro', 'Erro ao adicionar o usuário ao hospital.');
+            return redirect()->back();
+        }
+    
+        return redirect()->back();
+    }
+    public function removeUser(Request $request, Hospital $hospital, User $user)
+    {
+        try {
+            $hospital->users()->detach($user->id);
+            session()->flash('mensagem-sucesso', 'Usuário removido do hospital com sucesso.');
+        } catch (QueryException $e) {
+            session()->flash('mensagem-erro', 'Erro ao remover o usuário do hospital.');
             return redirect()->back();
         }
 

@@ -30,8 +30,7 @@
                       <th class="col-md-2 bg-transparent text-center  ">E-mail</th>
                       <th class="col-md-2 bg-transparent  text-center">CPF/CRM</th>
                       <th class="col-md-2 bg-transparent  text-center">Contato</th>
-                      <th class="col-md-1 bg-transparent text-center ">Level</th>
-                      <th class="col-md-1 bg-transparent text-center ">Hospitais</th>
+                      <th class="col-md-2 bg-transparent text-center ">Level</th>
                       <th class="col-md-1  bg-transparent  text-center">Detalhes</th>
                       <th class="col-md-1  bg-transparent  text-center">Excluir</th>
 
@@ -45,7 +44,7 @@
                       <td class="col-md-2 text-center">{{$user->email}}</td>
                       <td class="col-md-2 text-center">{{$user->crmv_cpf}}</td>
                       <td class="col-md-2 text-center">{{$user->contato}}</td>
-                      <td class="col-md-1 text-center">@if($user->level == 0)
+                      <td class="col-md-2 text-center">@if($user->level == 0)
                         Administrador
                         @endif
                         @if($user->level == 1)
@@ -55,12 +54,6 @@
                         Funcionário
                         @endif
                       </td>
-
-                      <td class="col-md-1 text-center">
-                      <button type="button" class=" btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalupdate{{$user->id}}">
-                     2</button>
-                      </td>
-
                       <td class="col-md-1 text-center">
                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalupdate{{$user->id}}">
                           <span class="fa fa-eye"></span></button>

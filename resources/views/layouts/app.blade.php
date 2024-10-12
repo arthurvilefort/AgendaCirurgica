@@ -26,6 +26,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+   
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
@@ -47,13 +51,16 @@
                     <ul class="navbar-nav me-auto">
 
                         <li class="nav-item ">
-                            <a class="nav-link active" href="{{ url('') }}">Agendar Cirurgia</a>
+                            <a class="nav-link active" href="{{ url('/agendamento') }}">Agendar Cirurgia</a>
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link active" href="{{ url('/hospitais') }}">Hospitais</a>
                         </li>
                         <li class="nav-item ">
-                            <a class="nav-link active" href="{{ url('') }}">Procedimentos</a>
+                            <a class="nav-link active" href="{{ url('/procedimentos') }}">Procedimentos</a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link active" href="{{ url('/pacientes') }}">Pacientes</a>
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link active" href="{{ url('') }}">Relatórios</a>
@@ -131,7 +138,9 @@
             @yield('content')
         </main>
     </div>
+
     @yield('scripts')
+
     <script>
         var mensagemErro = "{{ session('mensagem-erro') }}";
         var mensagemAlerta = "{{ session('mensagem-alerta') }}";
@@ -139,16 +148,16 @@
     </script>
     <script src="{{ asset('/js/all.js')}}"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var alertElement = document.querySelector('.alert-dismissible');
+        document.addEventListener('DOMContentLoaded', function() {
+            var alertElement = document.querySelector('.alert-dismissible');
 
-        if (alertElement) {
-            setTimeout(function() {
-                alertElement.style.display = 'none';
-            }, 3000);
-        }
-    });
-</script>
+            if (alertElement) {
+                setTimeout(function() {
+                    alertElement.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
 
 </body>
 
