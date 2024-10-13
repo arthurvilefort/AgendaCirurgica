@@ -8,6 +8,9 @@ use App\Models\Room;
 use App\Models\Surgery_types;
 use App\Models\Pacient;
 use App\Models\Surgerie;
+use Carbon\Carbon;  
+use Illuminate\Support\Facades\Auth;
+
 
 class SurgeriesController extends Controller
 {
@@ -16,7 +19,18 @@ class SurgeriesController extends Controller
      */
     public function index()
     {
-        $hospitals = Hospital::orderBy('nome')->get();
+        $user = Auth::user();
+
+        // Verifica se o usuário é admin (supondo que level 0 seja admin)
+        if ($user->level == 0) {
+            $hospitals = Hospital::all(); // Admin pode ver todos os hospitais
+        } else {
+            // Usuários normais só podem ver os hospitais aos quais estão vinculados
+            $hospitals = $user->hospitals; // Assumindo que você tem o relacionamento User -> Hospitals
+        }
+
+
+        //$hospitals = Hospital::orderBy('nome')->get();
         $salas = Room::orderBy('sala_nome')->get();
         $surgeryTypes = Surgery_types::orderBy('nome')->get();
         $pacients = Pacient::orderBy('nome')->get();
@@ -37,40 +51,58 @@ class SurgeriesController extends Controller
      */
     public function store(Request $request)
     {
-        // Concatenar a data com os horários para realizar a validação corretamente
-        $dataCompletaInicio = $request->data . ' ' . $request->data_inicio;
-        $dataCompletaFim = $request->data . ' ' . $request->data_fim;
-
-        // Validação
+        // Validação básica
         $request->validate([
             'hospital_id' => 'required',
             'sala_id' => 'required',
             'tipo_cirurgia_id' => 'required',
             'paciente_id' => 'required',
             'data' => 'required|date',
-            'data_inicio' => 'required',
-            'data_fim' => 'required|after:data_inicio',
+            'data_inicio' => 'required|date_format:H:i',
+            'data_fim' => 'required|date_format:H:i|after:data_inicio',
         ]);
-
+    
+        // Verificar conflitos de horário
+        $dataCirurgia = Carbon::parse($request->data);
+        $dataInicio = Carbon::parse($request->data . ' ' . $request->data_inicio);
+        $dataFim = Carbon::parse($request->data . ' ' . $request->data_fim);
+    
+        $conflito = Surgerie::where('sala_id', $request->sala_id)
+            ->whereDate('data', $dataCirurgia)
+            ->where(function($query) use ($dataInicio, $dataFim) {
+                // Verificar se há conflitos entre os horários de início e fim
+                $query->where(function ($subQuery) use ($dataInicio, $dataFim) {
+                    $subQuery->whereTime('data_inicio', '<', $dataFim)
+                        ->whereTime('data_fim', '>', $dataInicio);
+                });
+            })
+            ->exists();
+    
+        if ($conflito) {
+            session()->flash('mensagem-erro', 'Já existe uma cirurgia agendada nesse horário.');
+            return back()->with('error', 'Já existe uma cirurgia agendada nesse horário.');
+        }
+    
+        // Se não houver conflitos, prosseguir com o cadastro
         try {
-            // Criar a cirurgia
             Surgerie::create([
                 'hospital_id' => $request->hospital_id,
                 'sala_id' => $request->sala_id,
                 'tipo_cirurgia_id' => $request->tipo_cirurgia_id,
                 'paciente_id' => $request->paciente_id,
-                'data' => $request->data,
-                'data_inicio' => $request->data_inicio,
-                'data_fim' => $request->data_fim,
-                'status' => 'agendada', // Definir status inicial
+                'data' => $dataCirurgia,
+                'data_inicio' => $dataInicio->format('H:i'),
+                'data_fim' => $dataFim->format('H:i'),
+                'status' => 'agendada', // Status inicial
             ]);
-            session()->flash('mensagem-sucesso', 'Cirurgia Cadastrada com sucesso!');
+            session()->flash('mensagem-sucesso', 'Cirurgia agendada com sucesso.');
             return redirect()->back()->with('success', 'Cirurgia agendada com sucesso.');
         } catch (\Exception $e) {
-            session()->flash('mensagem-erro', 'Erro ao salvar o registro.');
-            return redirect()->back()->with('error', 'Erro ao agendar a cirurgia: ' . $e->getMessage());
+            session()->flash('mensagem-erro', 'Erro ao agendar a cirurgia.');
+            return back()->with('error', 'Erro ao agendar a cirurgia: ' . $e->getMessage());
         }
     }
+    
 
     /**
      * Display the specified resource.
@@ -109,5 +141,22 @@ class SurgeriesController extends Controller
     {
         $salas = Room::where('hospital_id', $hospital_id)->get();
         return response()->json($salas);
+    }
+
+    public function getTiposCirurgia($salaId)
+    {
+        // Obter a sala pelo ID
+        $sala = Room::find($salaId);
+
+        if (!$sala) {
+            return response()->json([], 404); // Retorna erro se a sala não for encontrada
+        }
+
+        // Buscar tipos de cirurgia que NÃO estão nas restrições
+        $tiposCirurgiaPermitidos = Surgery_types::whereDoesntHave('rooms', function ($query) use ($salaId) {
+            $query->where('room_id', $salaId);
+        })->get();
+
+        return response()->json($tiposCirurgiaPermitidos);
     }
 }

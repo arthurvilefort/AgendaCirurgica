@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> -->
 
    
 
@@ -39,7 +39,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bgnavbar shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand" href="{{ url('/hospitais') }}">
                     {{ config('app.name') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -53,9 +53,9 @@
                         <li class="nav-item ">
                             <a class="nav-link active" href="{{ url('/agendamento') }}">Agendar Cirurgia</a>
                         </li>
-                        <li class="nav-item ">
+                        <!-- <li class="nav-item ">
                             <a class="nav-link active" href="{{ url('/hospitais') }}">Hospitais</a>
-                        </li>
+                        </li> -->
                         <li class="nav-item ">
                             <a class="nav-link active" href="{{ url('/procedimentos') }}">Procedimentos</a>
                         </li>

@@ -34,7 +34,7 @@
                       <th class="col-md-1  bg-transparent  text-center">Editar</th>
                       <th class="col-md-1  bg-transparent  text-center">Excluir</th>
                       @else<!-- SE FOR MEDICO EXIBE SÓ ESSA -->
-                      <th class="col-md-6 bg-transparent  text-center">Quantidade Total de Salas</th>
+                      <th class="col-md-4 bg-transparent  text-center">Restrições</th>
                       @endif
 
 
@@ -68,16 +68,15 @@
                           <span class="fa fa-trash excluir"></span></button>
                       </td>
                       @else<!-- SE FOR MEDICO EXIBE SÓ ESSA -->
-                      <td class="col-md-6 text-center">
-
-                        <button class="btn btn-info">
-                          Salas nesse Hospital
+                      <td class="col-md-2 text-center">
+                        @php
+                        $qtdrestricoes = $sala->tipocirurgias()->count();
+                        @endphp
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalListRestrictions{{$sala->id}}">
+                          {{ $qtdrestricoes }} Restrições
                         </button>
-                        <button class="btn btn-info">
-                          Salas nesse Hospital
-                        </button>
-                        @endif
                       </td>
+                      @endif
 
 
                     </tr>
@@ -116,7 +115,7 @@
       </div>
       <div class="modal-body">
         <!-- Div onde o calendário será renderizado -->
-        <div id="calendar{{ $sala->id }}" data-sala-id="{{ $sala->id }}" 
+        <div id="calendar{{ $sala->id }}" data-sala-id="{{ $sala->id }}"
           data-cirurgias="{{ json_encode($cirurgias->map(function ($cirurgia) {
             return [
               'sala_id' => $cirurgia->sala_id,
@@ -235,7 +234,9 @@
             <form action="{{ route('sala.removeRestrictions', ['sala' => $sala->id, 'tipocirurgia' => $tipocirurgia->id]) }}" method="POST">
               @csrf
               @method('DELETE')
+              @if(Auth::user()->level != 1)
               <button type="submit" class="btn btn-danger btn-sm">Remover</button>
+              @endif
             </form>
           </li>
           @endforeach
@@ -243,7 +244,7 @@
           <li class="list-group-item text-center">Nenhuma restrição associada a esta Sala.</li>
           @endif
         </ul>
-
+        @if(Auth::user()->level != 1)
         <!-- Formulário para adicionar novos usuários -->
         <form action="{{ route('sala.addRestrictions', $sala->id) }}" method="POST">
           @csrf
@@ -257,7 +258,7 @@
             <button class="btn btn-success" type="submit">Adicionar restrição</button>
           </div>
         </form>
-
+        @endif
       </div>
     </div>
   </div>

@@ -10,10 +10,10 @@
 
                 <div class="card-body">
                     @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                    <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
                     @if (session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
 
                     <form action="{{ route('agendamento.store') }}" method="POST">
@@ -25,10 +25,12 @@
                             <select class="form-control" id="hospital_id" name="hospital_id" required>
                                 <option value="">Selecione...</option>
                                 @foreach ($hospitals as $hospital)
-                                    <option value="{{ $hospital->id }}">{{ $hospital->nome }}</option>
+                                <option value="{{ $hospital->id }}">{{ $hospital->nome }}</option>
                                 @endforeach
                             </select>
                         </div>
+
+
 
                         <!-- Selecionar a Sala -->
                         <div class="form-group mb-3">
@@ -44,12 +46,22 @@
                             <select class="form-control" id="paciente_id" name="paciente_id" required>
                                 <option value="">Selecione...</option>
                                 @foreach ($pacients as $pacient)
-                                    <option value="{{ $pacient->id }}">{{ $pacient->nome }}</option>
+                                <option value="{{ $pacient->id }}">{{ $pacient->nome }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- Selecionar o Tipo de Cirurgia -->
+                        <!-- Tipo de Cirurgia Dropdown (filtrado via AJAX com base nas restrições da sala) -->
+                        <div class="mb-3">
+                            <label for="tipo_cirurgia_id" class="form-label">Tipo de Cirurgia</label>
+                            <select name="tipo_cirurgia_id" id="tipo_cirurgia_id" class="form-select" required>
+                                <option value="">Selecione o tipo de cirurgia</option>
+                                <!-- As opções de tipo de cirurgia serão carregadas via AJAX -->
+                            </select>
+                        </div>
+
+
+                        <!-- Selecionar o Tipo de Cirurgia 
                         <div class="form-group mb-3">
                             <label for="tipo_cirurgia_id">Selecione o Tipo de Cirurgia:</label>
                             <select class="form-control" id="tipo_cirurgia_id" name="tipo_cirurgia_id" required>
@@ -58,7 +70,7 @@
                                     <option value="{{ $surgeryType->id }}">{{ $surgeryType->nome }}</option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div-->
 
                         <!-- Data e Horário -->
                         <div class="form-group mb-3">
@@ -88,20 +100,38 @@
 
 @section('scripts')
 <script>
-// Função para carregar as salas conforme o hospital selecionado
-document.getElementById('hospital_id').addEventListener('change', function () {
-    var hospitalId = this.value;
+    // Função para carregar as salas conforme o hospital selecionado
+    document.getElementById('hospital_id').addEventListener('change', function() {
+        var hospitalId = this.value;
 
-    // Fazer requisição via AJAX para obter as salas
-    fetch(`/api/hospitals/${hospitalId}/salas`)
-        .then(response => response.json())
-        .then(data => {
-            var salaSelect = document.getElementById('sala_id');
-            salaSelect.innerHTML = '<option value="">Selecione...</option>';
-            data.forEach(function(sala) {
-                salaSelect.innerHTML += `<option value="${sala.id}">${sala.sala_nome}</option>`;
+        // Fazer requisição via AJAX para obter as salas
+        fetch(`/api/hospitals/${hospitalId}/salas`)
+            .then(response => response.json())
+            .then(data => {
+                var salaSelect = document.getElementById('sala_id');
+                salaSelect.innerHTML = '<option value="">Selecione...</option>';
+                data.forEach(function(sala) {
+                    salaSelect.innerHTML += `<option value="${sala.id}">${sala.sala_nome}</option>`;
+                });
             });
+    });
+
+    // Ao selecionar a sala, carregar os tipos de cirurgia permitidos via AJAX
+    $('#sala_id').change(function() {
+        var salaId = $(this).val();
+        $.ajax({
+            url: '/get-tipos-cirurgia/' + salaId,
+            type: 'GET',
+            success: function(tiposCirurgia) {
+                $('#tipo_cirurgia_id').empty().append('<option value="">Selecione o tipo de cirurgia</option>');
+                $.each(tiposCirurgia, function(index, tipoCirurgia) {
+                    $('#tipo_cirurgia_id').append('<option value="' + tipoCirurgia.id + '">' + tipoCirurgia.nome + '</option>');
+                });
+            }
         });
-});
+    });
+
+
+    
 </script>
 @endsection

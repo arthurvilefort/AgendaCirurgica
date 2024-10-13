@@ -82,19 +82,19 @@
                           <span class="fa fa-trash excluir"></span></button>
                       </td>
                       @else<!-- SE FOR MEDICO EXIBE SÓ ESSA -->
-                      <td class="col-md-6 text-center">
+                      <td class="col-md-2 text-center">
                         @php
                         $qtdSalas = $salas->where('hospital_id', $hospital->id)->count();
                         @endphp
 
                         @if ($qtdSalas > 0)
-                        <button class="btn btn-info">
-                          {{ $qtdSalas }} Salas nesse Hospital
-                        </button>
+                        <a href="{{route('sala.exibir', $hospital->id)}}" class="btn btn-info">
+                          {{ $qtdSalas }} Salas
+                        </a>
                         @else
-                        <button class="btn btn-info">
-                          {{ $qtdSalas }} Salas nesse Hospital
-                        </button>
+                        <a href="{{route('sala.exibir', $hospital->id)}}" class="btn btn-info">
+                          {{ $qtdSalas }} Salas
+                        </a>
                         @endif
                       </td>
                       @endif

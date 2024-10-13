@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\HospitalController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,3 +76,4 @@ Route::post('/agendamento', [App\Http\Controllers\SurgeriesController::class, 's
 
 Route::get('/api/hospitals/{hospital}/salas', [App\Http\Controllers\SurgeriesController::class, 'getSalas']);
 
+Route::get('/get-tipos-cirurgia/{sala}', [App\Http\Controllers\SurgeriesController::class, 'getTiposCirurgia'])->name('getTiposCirurgia');
