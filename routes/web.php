@@ -16,11 +16,10 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
+Route::group(['middleware' => 'auth'], function() {
+
+Route::get('/', [App\Http\Controllers\HospitalController::class, 'index'])->name('hospitais');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -77,3 +76,4 @@ Route::post('/agendamento', [App\Http\Controllers\SurgeriesController::class, 's
 Route::get('/api/hospitals/{hospital}/salas', [App\Http\Controllers\SurgeriesController::class, 'getSalas']);
 
 Route::get('/get-tipos-cirurgia/{sala}', [App\Http\Controllers\SurgeriesController::class, 'getTiposCirurgia'])->name('getTiposCirurgia');
+});
