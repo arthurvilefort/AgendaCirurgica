@@ -185,7 +185,7 @@ class SurgeriesController extends Controller
         });
     
         // Exporte os dados formatados para Excel
-        return (new FastExcel($dadosFormatados))->download('cirurgias_formatadas.xlsx');
+        return (new FastExcel($dadosFormatados))->download('cirurgias.xlsx');
     }
     
 }
