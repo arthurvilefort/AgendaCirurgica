@@ -31,6 +31,6 @@ class Surgerie extends Model
 
     public function pacient()
     {
-        return $this->belongsTo(Pacient::class);
+        return $this->belongsTo(Pacient::class, 'paciente_id');
     }
 }

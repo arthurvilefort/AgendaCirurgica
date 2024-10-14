@@ -9,6 +9,7 @@ use App\Models\Surgery_types;
 use App\Models\Pacient;
 use App\Models\Surgerie;
 use Carbon\Carbon;  
+use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -159,4 +160,32 @@ class SurgeriesController extends Controller
 
         return response()->json($tiposCirurgiaPermitidos);
     }
+
+    public function exportSurgeries()
+    {
+        // Obtenha todas as cirurgias com seus relacionamentos
+        $cirurgias = Surgerie::with(['tipoCirurgia', 'sala', 'hospital', 'pacient'])->get();
+        //dd($cirurgias->first()->pacient);
+
+        // Mapeie as cirurgias para exibir os nomes em vez dos IDs
+        $dadosFormatados = $cirurgias->map(function ($cirurgia) {
+            return [
+                'cirurgia_id' => $cirurgia->cirurgia_id,
+                'data' => Carbon::parse($cirurgia->data)->format('d/m/Y'), // Converte e formata a data
+                'data_inicio' => $cirurgia->data_inicio,
+                'data_fim' => $cirurgia->data_fim,
+                'tipo_cirurgia' => $cirurgia->tipoCirurgia->nome ?? 'N/A', // Nome do tipo de cirurgia
+                'sala' => $cirurgia->sala->sala_nome ?? 'N/A', // Nome da sala
+                'hospital' => $cirurgia->hospital->nome ?? 'N/A', // Nome do hospital
+                'paciente' => $cirurgia->pacient->nome ?? 'N/A', // Nome do paciente
+                //'status' => $cirurgia->status,
+                'Criado em' => Carbon::parse($cirurgia->created_at)->format('d/m/Y'), // Converte e formata a data
+                'Atualizado em' => Carbon::parse($cirurgia->updated_at)->format('d/m/Y'), // Converte e formata a data
+            ];
+        });
+    
+        // Exporte os dados formatados para Excel
+        return (new FastExcel($dadosFormatados))->download('cirurgias_formatadas.xlsx');
+    }
+    
 }

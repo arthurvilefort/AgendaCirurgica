@@ -76,4 +76,15 @@ Route::post('/agendamento', [App\Http\Controllers\SurgeriesController::class, 's
 Route::get('/api/hospitals/{hospital}/salas', [App\Http\Controllers\SurgeriesController::class, 'getSalas']);
 
 Route::get('/get-tipos-cirurgia/{sala}', [App\Http\Controllers\SurgeriesController::class, 'getTiposCirurgia'])->name('getTiposCirurgia');
+
+Route::get('/export-cirurgias', [App\Http\Controllers\SurgeriesController::class, 'exportSurgeries'])->name('export.cirurgias');
+
+
+Route::get('/relatorio', function () {
+    return view('relatorio');
+});
+
+
+
+
 });
